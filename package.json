@@ -1,0 +1,28 @@
+{
+  "name": "JPSendaiFamily2026",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "homepage": "https://WilliamDevLai.github.io/WilliamDevLai", 
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  // ...底下保留原本內容
+}
+{
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "gh-pages": "^6.3.0",
+    "install": "^0.13.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.3.0"
+  },
+  "dependencies": {
+    "lucide-react": "^1.16.0"
+  }
+}
