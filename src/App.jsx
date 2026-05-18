@@ -1,241 +1,181 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Map, 
-  CloudSun, 
-  Receipt, 
-  MapPin, 
-  Clock, 
-  Info, 
-  Train, 
-  Utensils, 
-  Camera, 
-  Bed, 
-  Plus, 
-  Trash2,
-  ChevronRight,
-  Sun,
-  CloudRain,
-  Wind,
-  Snowflake,
-  Cloud,
-  Loader2,
-  AlertCircle
+  MapPin, Clock, Info, Sun, CloudRain, Wind, 
+  Wallet, Plus, Users, Utensils, Train, Ticket, 
+  Heart, Home, Cloud, Receipt
 } from 'lucide-react';
 
-const MEMBERS = ['老公', '太太', '爸爸', '媽媽', '妹妹'];
-const API_KEY = 'ffc25a88fba418a3b33c788d933e6756';
-
-const ITINERARY = [
+// --- 行程資料 ---
+const itinerary = [
   {
-    day: 1,
-    date: '6/18 (四)',
-    title: '啟程：抵達杜之都仙台',
-    location: '仙台',
-    intro: '【仙台】日本東北最大的城市，被譽為「杜之都（森林之都）」。市區綠意盎然，以碳烤牛舌、毛豆泥甜點聞名，是我們這次旅行溫暖的大本營。',
-    events: [
-      { time: '11:35', type: 'flight', desc: '星宇航空 JX862 桃園 TPE 起飛' },
-      { time: '18:00', type: 'flight', desc: '抵達仙台 SDJ 機場' },
-      { time: '19:00', type: 'train', desc: '搭乘機場快速線（25分鐘）直達仙台站，入住直結飯店' },
-      { time: '晚上', type: 'food', desc: '車站3樓享用熱騰騰的「善治郎牛舌」，早點讓太太和爸媽休息補眠' }
+    day: "Day 1",
+    date: "6/18 (四)",
+    title: "啟程：抵達杜之都仙台",
+    location: "仙台",
+    intro: "第一天輕鬆為主，讓長輩與孕婦有充足的休息時間，用熱騰騰的牛舌開啟完美旅程！",
+    schedule: [
+      { time: "11:35", event: "星宇航空 JX862 台北起飛", icon: <Sun size={18} /> },
+      { time: "16:00", event: "抵達仙台機場", icon: <MapPin size={18} /> },
+      { time: "16:45", event: "搭乘機場快速線 (25分) 直達仙台站", icon: <Train size={18} /> },
+      { time: "17:30", event: "入住車站直結飯店", icon: <Home size={18} /> },
+      { time: "18:30", event: "晚餐：車站3樓 善治郎牛舌", icon: <Utensils size={18} /> },
+      { time: "20:00", event: "早點休息補眠", icon: <Heart size={18} /> }
     ]
   },
   {
-    day: 2,
-    date: '6/19 (五)',
-    title: '日本三景與海洋療癒',
-    location: '松島',
-    intro: '【松島】日本三景之一，海灣內有260多個長滿松樹的島嶼。夏天海風徐徐，非常適合搭船遊覽。',
-    events: [
-      { time: '10:30', type: 'train', desc: '搭 JR 仙石線前往松島海岸站（約40分鐘）' },
-      { time: '上午', type: 'camera', desc: '全家搭乘「松島灣觀光船」（特別客室沙發座），坐著輕鬆看海' },
-      { time: '中午', type: 'food', desc: '搭計程車（5分鐘）上「松島全景咖啡廳」吹冷氣看海景吃午餐' },
-      { time: '下午', type: 'camera', desc: '回程順路在「中野榮站」下車，轉接駁車至「仙台海洋森林水族館」。全室內冷氣、無障礙平路，看海豚與海獅露天秀' },
-      { time: '晚上', type: 'bed', desc: '返回仙台飯店休息' }
+    day: "Day 2",
+    date: "6/19 (五)",
+    title: "日本三景松島與療癒水族館",
+    location: "松島、仙台",
+    intro: "欣賞日本三景之一的松島，下午吹冷氣看海豚秀，全程平路無障礙。",
+    schedule: [
+      { time: "10:30", event: "搭乘 JR 仙石線前往松島海岸站", icon: <Train size={18} /> },
+      { time: "11:15", event: "松島灣觀光船 (特別客室沙發座)", icon: <Ticket size={18} /> },
+      { time: "12:30", event: "午餐：搭計程車上松島全景咖啡廳看海", icon: <Utensils size={18} /> },
+      { time: "14:30", event: "回程順路於中野榮站下車，轉接駁車", icon: <Train size={18} /> },
+      { time: "15:00", event: "仙台海洋森林水族館 (看海豚海獅秀)", icon: <Heart size={18} /> },
+      { time: "18:00", event: "返回仙台市區晚餐與休息", icon: <Home size={18} /> }
     ]
   },
   {
-    day: 3,
-    date: '6/20 (六)',
-    title: '盛岡祈願與海鮮之夜',
-    location: '盛岡 / 八戶',
-    intro: '【盛岡】岩手縣首府，以三大麵（冷麵、炸醬麵、一口蕎麥麵）聞名。盛岡八幡宮是當地信仰中心，非常適合祈求平安。',
-    events: [
-      { time: '10:30', type: 'train', desc: '輕鬆背上小包，搭乘東北新幹線前往盛岡站（只需40分鐘）' },
-      { time: '中午', type: 'food', desc: '小包丟車站置物櫃。站前享用酸甜開胃的「盛岡冷麵」搭配熟食燒肉' },
-      { time: '下午', type: 'camera', desc: '搭計程車直達「盛岡八幡宮」。陪太太玩「釣鯛魚籤」，為寶寶求安產御守，爸媽祈福' },
-      { time: '傍晚', type: 'train', desc: '回盛岡站拿小包，搭新幹線（30分鐘）直達八戶站，過馬路飯店 Check-in' },
-      { time: '晚上', type: 'food', desc: '拆搭兩台計程車去「八食中心」吃頂級熟食海鮮' }
+    day: "Day 3",
+    date: "6/20 (六)",
+    title: "盛岡安產祈願與八戶前夜",
+    location: "盛岡、八戶",
+    intro: "前往盛岡品嚐特色冷麵，並到八幡宮為寶寶祈求安產，傍晚直達八戶。",
+    schedule: [
+      { time: "10:30", event: "新幹線前往盛岡站 (行李輕裝)", icon: <Train size={18} /> },
+      { time: "11:30", event: "午餐：盛岡站前 盛岡冷麵+燒肉", icon: <Utensils size={18} /> },
+      { time: "13:00", event: "拆搭計程車直達 盛岡八幡宮", icon: <MapPin size={18} /> },
+      { time: "13:30", event: "釣鯛魚籤、求安產御守", icon: <Heart size={18} /> },
+      { time: "16:00", event: "新幹線直達八戶站 (約30分)", icon: <Train size={18} /> },
+      { time: "17:00", event: "八戶站前飯店 Check-in", icon: <Home size={18} /> },
+      { time: "18:30", event: "晚餐：八食中心 頂級熟食海鮮", icon: <Utensils size={18} /> }
     ]
   },
   {
-    day: 4,
-    date: '6/21 (日)',
-    title: '奧入瀨溪流綠意洗禮',
-    location: '奧入瀨溪流',
-    intro: '【奧入瀨溪流】被列為特別名勝與天然紀念物。初夏的新綠是最美的季節，溪水聲與芬多精讓人徹底放鬆。今日免換飯店、免搬行李！',
-    events: [
-      { time: '10:00', type: 'train', desc: '八戶站西口直搭 JR 巴士' },
-      { time: '11:44', type: 'camera', desc: '抵達「石之戶」（平路散步、溪畔野餐）' },
-      { time: '14:07', type: 'train', desc: '換短程巴士前往「銚子大瀑布」（看震撼瀑布、拍全家福大合照）' },
-      { time: '16:18', type: 'train', desc: '搭末班車返回' },
-      { time: '18:20', type: 'bed', desc: '回到八戶站前續住' }
+    day: "Day 4",
+    date: "6/21 (日)",
+    title: "奧入瀨溪流綠意精華遊",
+    location: "奧入瀨 (續住八戶)",
+    intro: "免換飯店！將坐車時間壓縮到最短，輕鬆享受奧入瀨溪流最精華的散步路段。",
+    schedule: [
+      { time: "10:00", event: "八戶站西口搭 JR 巴士", icon: <Train size={18} /> },
+      { time: "11:44", event: "抵達 石之戶 (平路散步、溪畔野餐)", icon: <MapPin size={18} /> },
+      { time: "14:07", event: "換短程巴士前往 銚子大瀑布", icon: <MapPin size={18} /> },
+      { time: "14:30", event: "拍全家福大合照、吸收負離子", icon: <Heart size={18} /> },
+      { time: "16:18", event: "搭乘末班車返回", icon: <Train size={18} /> },
+      { time: "18:20", event: "回到八戶站前 (續住)", icon: <Home size={18} /> }
     ]
   },
   {
-    day: 5,
-    date: '6/22 (一)',
-    title: '小岩井農場與市區採購',
-    location: '盛岡 / 仙台',
-    intro: '【小岩井農場】日本最大的民營農場，擁有百年歷史。以岩手山為背景的廣闊草原令人心曠神怡，鮮奶製品是必吃美食。',
-    events: [
-      { time: '09:30', type: 'train', desc: '退房，搭新幹線（30分鐘）回盛岡站寄放小包，轉乘巴士（35分鐘）直達農場' },
-      { time: '上午', type: 'camera', desc: '預約「拖拉機遊覽車」。坐大車繞行大草原、看綠色一本櫻與岩手山，免動腿力' },
-      { time: '中午', type: 'food', desc: '喝濃郁現擠鮮乳、吃霜淇淋' },
-      { time: '下午', type: 'train', desc: '搭新幹線（40分鐘）回仙台。入住原飯店（大行李已在房間）' },
-      { time: '傍晚', type: 'camera', desc: '太太房間睡午覺，其他人可下樓逛街幫太太補貨吉伊卡哇' }
+    day: "Day 5",
+    date: "6/22 (一)",
+    title: "小岩井農場大自然與吉伊卡哇",
+    location: "盛岡、仙台",
+    intro: "輕鬆坐拖拉機遊牧場，下午太太在飯店睡午覺，妹妹與您去市區採購補貨。",
+    schedule: [
+      { time: "09:30", event: "退房，新幹線返回盛岡站寄放小包", icon: <Train size={18} /> },
+      { time: "10:30", event: "轉乘巴士前往 小岩井農場", icon: <MapPin size={18} /> },
+      { time: "11:00", event: "農場拖拉機遊覽車 (0腿力遊草原)", icon: <Ticket size={18} /> },
+      { time: "12:30", event: "午餐：喝鮮乳、吃霜淇淋", icon: <Utensils size={18} /> },
+      { time: "14:30", event: "新幹線一路睡回仙台 (大行李已在房間)", icon: <Home size={18} /> },
+      { time: "15:30", event: "太太午休，妹妹下樓逛街買吉伊卡哇", icon: <Heart size={18} /> }
     ]
   },
   {
-    day: 6,
-    date: '6/23 (二)',
-    title: '紫陽花海與奢華溫泉',
-    location: '仙台 / 秋保溫泉',
-    intro: '【秋保溫泉】奧州三名湯之一，歷史悠久，自古為伊達政宗的御用溫泉。搭配初夏限定的繡球花（紫陽花），體驗極致日式風情。',
-    events: [
-      { time: '10:00', type: 'camera', desc: '搭計程車（10分鐘）直達資福寺（紫陽花寺）。6月下旬繡球花滿開，拍初夏花海合照' },
-      { time: '中午', type: 'food', desc: '吃完仙台牛燒肉後，搭計程車（30分鐘）前往秋保溫泉高級旅館（如佐勘）' },
-      { time: '下午', type: 'bed', desc: '享用日歸懷石午餐。爸媽妹妹泡大眾池。陪太太泡預約好的「專屬私密湯屋」15分鐘，隨後在榻榻米小憩' }
+    day: "Day 6",
+    date: "6/23 (二)",
+    title: "紫陽花花海與秋保溫泉奢華日",
+    location: "仙台、秋保",
+    intro: "初夏限定滿開繡球花，下午安排私密湯屋，讓孕婦完全0勞動放鬆舒緩水腫。",
+    schedule: [
+      { time: "10:00", event: "計程車前往 資福寺 (紫陽花寺)", icon: <MapPin size={18} /> },
+      { time: "11:30", event: "午餐：仙台牛燒肉", icon: <Utensils size={18} /> },
+      { time: "13:30", event: "計程車前往 秋保溫泉 (如佐勘)", icon: <MapPin size={18} /> },
+      { time: "14:00", event: "爸媽妹妹：大眾池 / 太太：私密湯屋", icon: <Heart size={18} /> },
+      { time: "15:00", event: "湯屋榻榻米包廂小憩睡午覺", icon: <Home size={18} /> },
+      { time: "17:00", event: "返回仙台市區", icon: <Train size={18} /> }
     ]
   },
   {
-    day: 7,
-    date: '6/24 (三)',
-    title: '國寶巡禮與滿載而歸',
-    location: '仙台',
-    intro: '旅程的最後一天，走訪充滿歷史底蘊的國寶建築，並將東北的美好回憶與伴手禮一起打包回家。',
-    events: [
-      { time: '10:00', type: 'camera', desc: '搭計程車前往國寶「大崎八幡宮」。（停「北參道入口」下車，全平路避開階梯）' },
-      { time: '中午', type: 'food', desc: '仙台車站 S-PAL 百貨做伴手禮（萩之月、毛豆泥大福）最後大掃貨' },
-      { time: '14:45', type: 'train', desc: '搭乘機場快速線（25分鐘）前往機場' },
-      { time: '17:20', type: 'flight', desc: '搭乘星宇航空 JX863 返回台灣，旅途平安！' }
+    day: "Day 7",
+    date: "6/24 (三)",
+    title: "國寶巡禮與滿載而歸",
+    location: "仙台",
+    intro: "完美避開階梯參拜國寶八幡宮，車站最後大掃貨，帶著滿滿回憶返家。",
+    schedule: [
+      { time: "10:00", event: "計程車至 大崎八幡宮 (北參道下車避階梯)", icon: <MapPin size={18} /> },
+      { time: "11:30", event: "返回仙台車站 S-PAL 百貨", icon: <MapPin size={18} /> },
+      { time: "12:00", event: "午餐與伴手禮大掃貨 (萩之月、毛豆泥)", icon: <Utensils size={18} /> },
+      { time: "14:45", event: "搭乘機場快速線前往機場", icon: <Train size={18} /> },
+      { time: "17:20", event: "星宇航空 JX863 仙台起飛", icon: <Sun size={18} /> },
+      { time: "20:35", event: "抵達台北，旅途平安結束！", icon: <Heart size={18} /> }
     ]
   }
 ];
 
-const getWeatherIcon = (main) => {
-  switch(main) {
-    case 'Clear': return <Sun className="w-8 h-8 text-orange-400" />;
-    case 'Clouds': return <CloudSun className="w-8 h-8 text-gray-400" />;
-    case 'Rain': return <CloudRain className="w-8 h-8 text-blue-400" />;
-    case 'Snow': return <Snowflake className="w-8 h-8 text-teal-300" />;
-    default: return <Cloud className="w-8 h-8 text-gray-400" />;
-  }
-};
-
-const EventIcon = ({ type }) => {
-  switch(type) {
-    case 'flight': return <MapPin className="w-5 h-5 text-teal-600" />;
-    case 'train': return <Train className="w-5 h-5 text-blue-500" />;
-    case 'food': return <Utensils className="w-5 h-5 text-orange-500" />;
-    case 'camera': return <Camera className="w-5 h-5 text-purple-500" />;
-    case 'bed': return <Bed className="w-5 h-5 text-indigo-500" />;
-    default: return <Clock className="w-5 h-5 text-gray-500" />;
-  }
-};
+// --- 模擬天氣資料 (6月中旬平均) ---
+const mockWeather = [
+  { dt: 1, temp: { min: 18, max: 25 }, weather: [{ main: 'Clear', description: '晴天' }] },
+  { dt: 2, temp: { min: 17, max: 23 }, weather: [{ main: 'Clouds', description: '多雲' }] },
+  { dt: 3, temp: { min: 19, max: 26 }, weather: [{ main: 'Clear', description: '晴時多雲' }] },
+  { dt: 4, temp: { min: 16, max: 22 }, weather: [{ main: 'Rain', description: '短暫陣雨' }] },
+  { dt: 5, temp: { min: 18, max: 24 }, weather: [{ main: 'Clouds', description: '陰天' }] },
+  { dt: 6, temp: { min: 17, max: 25 }, weather: [{ main: 'Clear', description: '晴天' }] },
+  { dt: 7, temp: { min: 19, max: 27 }, weather: [{ main: 'Clouds', description: '多雲' }] }
+];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('itinerary');
-  const [selectedDay, setSelectedDay] = useState(1); // 新增：控制目前顯示的天數
-  
-  // 天氣 API 狀態
-  const [weatherData, setWeatherData] = useState([]);
+  // 頁籤狀態
+  const [mainTab, setMainTab] = useState('itinerary');
+  const [activeDay, setActiveDay] = useState(0);
+
+  // 天氣狀態
+  const [weatherData, setWeatherData] = useState(null);
+  const [isUsingMockWeather, setIsUsingMockWeather] = useState(false);
   const [weatherLoading, setWeatherLoading] = useState(true);
-  const [weatherError, setWeatherError] = useState(false);
-  const [isUsingMock, setIsUsingMock] = useState(false);
 
-  // 記帳相關狀態 (修復 expenses is not defined 錯誤)
+  // 記帳狀態 (5個人)
   const [expenses, setExpenses] = useState([]);
-  const [expTitle, setExpTitle] = useState('');
-  const [expAmount, setExpAmount] = useState('');
-  const [expPayer, setExpPayer] = useState(MEMBERS[0]);
-  const [expSplitters, setExpSplitters] = useState(MEMBERS);
+  const [newExpense, setNewExpense] = useState({ title: '', amount: '', payer: '爸爸' });
+  
+  const members = ['爸爸', '媽媽', '老公', '老婆', '妹妹'];
 
+  // 取得天氣 (OpenWeatherMap)
   useEffect(() => {
     const fetchWeather = async () => {
+      setWeatherLoading(true);
+      const apiKey = 'ffc25a88fba418a3b33c788d933e6756';
+      // 仙台市的座標
+      const lat = 38.2682;
+      const lon = 140.8694;
+      
       try {
-        setWeatherLoading(true);
-        // 抓取仙台 (大本營) 的 5 天每 3 小時預報
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Sendai,jp&appid=${API_KEY}&units=metric&lang=zh_tw`);
-        if (!res.ok) throw new Error('Weather API request failed');
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=zh_tw`);
+        
+        if (!res.ok) throw new Error('API Rate limit or Unauthorized');
+        
         const data = await res.json();
         
-        // 將每 3 小時的資料依據日期分組
-        const daily = {};
-        data.list.forEach(item => {
-          // dt_txt 格式為 "2026-05-17 12:00:00"
-          const date = item.dt_txt.split(' ')[0];
-          if (!daily[date]) {
-            daily[date] = { temps: [], weathers: [], descriptions: [] };
-          }
-          daily[date].temps.push(item.main.temp);
-          daily[date].weathers.push(item.weather[0].main);
-          daily[date].descriptions.push(item.weather[0].description);
-        });
+        // 處理 5 天預報資料 (API每3小時一筆，每天抓中午的資料代表)
+        const dailyData = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
+        
+        const formattedWeather = dailyData.map(item => ({
+          dt: item.dt,
+          temp: {
+            min: Math.round(item.main.temp_min - 2), // 簡易推算最低溫
+            max: Math.round(item.main.temp_max + 2)  // 簡易推算最高溫
+          },
+          weather: item.weather
+        }));
 
-        // 處理並精煉出每天的最高低溫與穿衣建議
-        const processedData = Object.keys(daily).slice(0, 5).map(date => {
-          const temps = daily[date].temps;
-          const minTemp = Math.round(Math.min(...temps));
-          const maxTemp = Math.round(Math.max(...temps));
-          
-          // 找出當天出現最多次的天氣狀態
-          const weathers = daily[date].weathers;
-          const mainWeather = weathers.sort((a,b) =>
-            weathers.filter(v => v===a).length - weathers.filter(v => v===b).length
-          ).pop();
-          
-          // 抓取中午時段或隨機的描述
-          const desc = daily[date].descriptions[Math.floor(daily[date].descriptions.length / 2)];
-
-          // 根據氣溫與天氣給予動態穿衣建議
-          let advice = '';
-          if (mainWeather === 'Rain') {
-            advice = '預報有雨，請隨身攜帶雨具，並穿著防潑水鞋子，小心地滑。';
-          } else if (maxTemp >= 28) {
-            advice = '天氣炎熱，請準備短袖、防曬乳與太陽眼鏡，外出請多補充水分。';
-          } else if (maxTemp >= 22) {
-            advice = '氣溫舒適宜人，建議短袖搭配薄外套，方便進出冷氣房時穿脫。';
-          } else {
-            advice = '氣溫稍涼，建議採用「洋蔥式穿搭」，以薄長袖搭配防風外套為主。';
-          }
-
-          // 格式化日期 (MM/DD)
-          const formattedDate = date.substring(5).replace('-', '/');
-
-          return {
-            date: formattedDate,
-            temp: `${minTemp}°C / ${maxTemp}°C`,
-            desc: desc,
-            main: mainWeather,
-            advice: advice
-          };
-        });
-
-        setWeatherData(processedData);
-        setWeatherError(false);
-        setIsUsingMock(false);
-      } catch (err) {
-        console.error("Weather Fetch Error:", err);
-        // 當 API 尚未啟用或失敗時，啟用備用模擬資料
-        setWeatherData([
-          { date: '06/18', temp: '18°C / 26°C', desc: '晴時多雲', main: 'Clear', advice: '氣溫舒適宜人，建議短袖搭配薄外套，方便進出冷氣房時穿脫。' },
-          { date: '06/19', temp: '19°C / 25°C', desc: '多雲', main: 'Clouds', advice: '氣溫稍涼，建議採用「洋蔥式穿搭」，以薄長袖搭配防風外套為主。' },
-          { date: '06/20', temp: '17°C / 24°C', desc: '小雨', main: 'Rain', advice: '預報有雨，請隨身攜帶雨具，並穿著防潑水鞋子，小心地滑。' },
-          { date: '06/21', temp: '19°C / 27°C', desc: '多雲時晴', main: 'Clouds', advice: '氣溫舒適宜人，建議短袖搭配薄外套，方便進出冷氣房時穿脫。' },
-          { date: '06/22', temp: '20°C / 29°C', desc: '晴朗', main: 'Clear', advice: '天氣炎熱，請準備短袖、防曬乳與太陽眼鏡，外出請多補充水分。' }
-        ]);
-        setIsUsingMock(true);
-        setWeatherError(false); // 使用模擬資料就不顯示嚴重錯誤
+        setWeatherData(formattedWeather);
+        setIsUsingMockWeather(false);
+      } catch (error) {
+        console.warn("Weather API Error, using mock data.", error);
+        setWeatherData(mockWeather);
+        setIsUsingMockWeather(true);
       } finally {
         setWeatherLoading(false);
       }
@@ -244,385 +184,279 @@ export default function App() {
     fetchWeather();
   }, []);
 
+  // 穿搭建議邏輯
+  const getClothingAdvice = (min, max, condition) => {
+    let advice = "短袖上衣 + 薄長袖外套 (洋蔥式穿法)。";
+    if (max >= 26) advice = "透氣短袖為主，防曬帽、太陽眼鏡必備。";
+    if (min <= 16) advice = "早晚偏涼，請為長輩與孕婦準備防風薄外套。";
+    if (condition.includes('雨') || condition.includes('Rain')) {
+      advice += " 記得隨身攜帶折疊傘與防滑好走的鞋。";
+    }
+    return advice;
+  };
+
+  // 記帳邏輯
   const handleAddExpense = (e) => {
     e.preventDefault();
-    if (!expTitle || !expAmount || expSplitters.length === 0) return;
-
-    const newExpense = {
-      id: Date.now(),
-      title: expTitle,
-      amount: parseFloat(expAmount),
-      payer: expPayer,
-      splitters: expSplitters,
-      date: new Date().toLocaleDateString()
-    };
-
-    setExpenses([newExpense, ...expenses]);
-    setExpTitle('');
-    setExpAmount('');
+    if (!newExpense.title || !newExpense.amount) return;
+    setExpenses([...expenses, { ...newExpense, amount: Number(newExpense.amount), id: Date.now() }]);
+    setNewExpense({ title: '', amount: '', payer: 'Papa' });
   };
 
-  const handleDeleteExpense = (id) => {
-    setExpenses(expenses.filter(exp => exp.id !== id));
-  };
-
-  const toggleSplitter = (member) => {
-    if (expSplitters.includes(member)) {
-      setExpSplitters(expSplitters.filter(m => m !== member));
-    } else {
-      setExpSplitters([...expSplitters, member]);
-    }
-  };
-
-  const settlements = useMemo(() => {
-    const balances = {};
-    MEMBERS.forEach(m => balances[m] = 0);
-
+  const calculateSplit = () => {
+    const totals = members.reduce((acc, member) => ({ ...acc, [member]: 0 }), {});
+    let grandTotal = 0;
+    
     expenses.forEach(exp => {
-      balances[exp.payer] += exp.amount;
-      const splitAmount = exp.amount / exp.splitters.length;
-      exp.splitters.forEach(splitter => {
-        balances[splitter] -= splitAmount;
-      });
+      totals[exp.payer] += exp.amount;
+      grandTotal += exp.amount;
     });
 
-    const debtors = [];
-    const creditors = [];
-    for (const [person, amount] of Object.entries(balances)) {
-      if (amount < -0.01) debtors.push({ person, amount: Math.abs(amount) });
-      else if (amount > 0.01) creditors.push({ person, amount });
-    }
-
-    const transactions = [];
-    let i = 0, j = 0;
-
-    while (i < debtors.length && j < creditors.length) {
-      const debtor = debtors[i];
-      const creditor = creditors[j];
-      const amount = Math.min(debtor.amount, creditor.amount);
-
-      transactions.push({
-        from: debtor.person,
-        to: creditor.person,
-        amount: Math.round(amount)
-      });
-
-      debtor.amount -= amount;
-      creditor.amount -= amount;
-
-      if (debtor.amount < 0.01) i++;
-      if (creditor.amount < 0.01) j++;
-    }
-
-    return transactions;
-  }, [expenses]);
-
-  const renderItinerary = () => {
-    // 根據 selectedDay 篩選出當天行程
-    const currentDayData = ITINERARY.find(d => d.day === selectedDay) || ITINERARY[0];
-
-    return (
-      <div className="space-y-4 pb-24 animate-fade-in">
-        <div className="bg-gradient-to-r from-teal-500 to-emerald-400 p-6 rounded-2xl shadow-md text-white mb-2">
-          <h2 className="text-2xl font-bold mb-1">日本東北夏日行 🎋</h2>
-          <p className="text-teal-50 text-sm opacity-90">6/18 - 6/24・仙台、松島、盛岡、奧入瀨</p>
-        </div>
-
-        {/* 左右滑動的日期選擇器 */}
-        <div className="flex overflow-x-auto gap-3 pb-2 pt-2 hide-scrollbar">
-          {ITINERARY.map((d) => (
-            <button
-              key={d.day}
-              onClick={() => setSelectedDay(d.day)}
-              className={`flex-shrink-0 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 ${
-                selectedDay === d.day
-                  ? 'bg-teal-600 text-white shadow-md transform scale-105'
-                  : 'bg-white text-teal-700 border border-teal-100 shadow-sm hover:bg-teal-50'
-              }`}
-            >
-              Day {d.day}
-            </button>
-          ))}
-        </div>
-
-        {/* 當天詳細行程卡片 */}
-        <div key={currentDayData.day} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 animate-slide-up">
-          <div className="bg-teal-50 px-5 py-4 border-b border-teal-100 flex items-center justify-between">
-            <div>
-              <span className="text-sm font-bold text-teal-600 mb-1 block">Day {currentDayData.day} • {currentDayData.date}</span>
-              <h3 className="text-lg font-bold text-gray-800">{currentDayData.title}</h3>
-            </div>
-            <div className="bg-white p-2 rounded-full shadow-sm">
-              <MapPin className="w-5 h-5 text-teal-500" />
-            </div>
-          </div>
-          
-          <div className="p-5">
-            <div className="mb-6 bg-blue-50/50 p-4 rounded-xl text-sm text-gray-700 flex items-start gap-3 border border-blue-100 shadow-sm">
-              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-              <p className="leading-relaxed">{currentDayData.intro}</p>
-            </div>
-
-            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-teal-200 before:to-transparent">
-              {currentDayData.events.map((evt, idx) => (
-                <div key={idx} className="relative flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-white border-2 border-teal-200 flex items-center justify-center flex-shrink-0 z-10 shadow-sm">
-                    <EventIcon type={evt.type} />
-                  </div>
-                  <div className="pt-2 flex-1 pb-2">
-                    <span className="inline-block px-2 py-1 bg-gray-100 rounded text-xs font-bold text-gray-600 mb-2">
-                      {evt.time}
-                    </span>
-                    <p className="text-gray-700 text-sm md:text-base leading-relaxed">{evt.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    const average = grandTotal / 5;
+    
+    return members.map(member => ({
+      name: member,
+      paid: totals[member],
+      balance: totals[member] - average
+    }));
   };
 
-  const renderWeather = () => (
-    <div className="space-y-4 pb-24 animate-fade-in">
-      <div className="bg-gradient-to-r from-blue-400 to-cyan-400 p-6 rounded-2xl shadow-md text-white mb-4">
-        <h2 className="text-2xl font-bold mb-1">即時天氣與穿搭 🌤️</h2>
-        <p className="text-blue-50 text-sm opacity-90">仙台地區未來五天預報與建議</p>
-      </div>
-
-      <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-xl flex items-start gap-2 mb-4">
-        <Info className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-        <div className="text-xs text-yellow-800 leading-relaxed">
-          <p>由於氣象 API 限制，目前顯示為「近 5 天」的即時預報。6 月出發前打開此網頁，將自動載入您旅行當下的真實天氣！</p>
-          {isUsingMock && (
-            <p className="mt-2 font-bold text-red-500 bg-red-50 p-2 rounded border border-red-100">
-              ⚠️ 無法連線至氣象 API (可能是 Key 尚未啟用)。已自動為您切換為 6 月初夏模擬天氣。
-            </p>
-          )}
-        </div>
-      </div>
-
-      {weatherLoading && (
-        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-400 mb-2" />
-          <p className="text-sm font-bold">正在連線至氣象局...</p>
-        </div>
-      )}
-
-      {weatherError && (
-        <div className="bg-red-50 p-6 rounded-2xl flex flex-col items-center text-center border border-red-100">
-          <AlertCircle className="w-10 h-10 text-red-400 mb-2" />
-          <p className="text-red-600 font-bold mb-1">無法取得天氣資料</p>
-          <p className="text-xs text-red-500">請確認您的網路連線或 API Key 是否有效</p>
-        </div>
-      )}
-
-      {!weatherLoading && !weatherError && weatherData.map((w, idx) => (
-        <div key={idx} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center md:items-start transition-all hover:shadow-md">
-          <div className="flex flex-col items-center justify-center w-24 flex-shrink-0">
-            <span className="font-bold text-gray-500 mb-2">{w.date}</span>
-            <div className="p-3 bg-blue-50 rounded-full mb-2">
-              {getWeatherIcon(w.main)}
-            </div>
-            <span className="text-sm font-bold text-gray-800">{w.temp}</span>
-            <span className="text-xs text-gray-500 mt-1 capitalize">{w.desc}</span>
-          </div>
-          
-          <div className="h-px w-full md:h-full md:w-px bg-gray-100 my-2 md:my-0"></div>
-          
-          <div className="flex-1 bg-amber-50/50 p-4 rounded-xl border border-amber-100 w-full h-full flex flex-col justify-center">
-            <h4 className="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2">
-              <Info className="w-4 h-4" /> 穿搭與提醒
-            </h4>
-            <p className="text-sm text-gray-700 leading-relaxed">{w.advice}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderExpenses = () => (
-    <div className="space-y-6 pb-24 animate-fade-in">
-      <div className="bg-gradient-to-r from-orange-400 to-amber-400 p-6 rounded-2xl shadow-md text-white mb-6">
-        <h2 className="text-2xl font-bold mb-1">公費與分帳計算 💰</h2>
-        <p className="text-orange-50 text-sm opacity-90">系統將自動算出最少轉帳次數</p>
-      </div>
-
-      <form onSubmit={handleAddExpense} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-        <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <Plus className="w-5 h-5 text-orange-500" /> 新增花費
-        </h3>
-        
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">項目</label>
-              <input 
-                type="text" 
-                required
-                value={expTitle}
-                onChange={e => setExpTitle(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:bg-white transition-all" 
-                placeholder="例如：善治郎牛舌"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">金額 (日幣)</label>
-              <input 
-                type="number" 
-                required
-                value={expAmount}
-                onChange={e => setExpAmount(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:bg-white transition-all" 
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 mb-2">誰先代墊的？</label>
-            <div className="flex flex-wrap gap-2">
-              {MEMBERS.map(m => (
-                <button
-                  key={`payer-${m}`}
-                  type="button"
-                  onClick={() => setExpPayer(m)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${expPayer === m ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 mb-2">誰要分攤？(可多選)</label>
-            <div className="flex flex-wrap gap-2">
-              {MEMBERS.map(m => (
-                <button
-                  key={`split-${m}`}
-                  type="button"
-                  onClick={() => toggleSplitter(m)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${expSplitters.includes(m) ? 'bg-teal-500 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button type="submit" className="w-full py-3 bg-orange-100 text-orange-700 font-bold rounded-xl hover:bg-orange-200 transition-colors mt-2">
-            加入花費紀錄
-          </button>
-        </div>
-      </form>
-
-      {expenses.length > 0 && (
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-emerald-100 animate-slide-up">
-          <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-emerald-500" /> 最終結算建議
-          </h3>
-          {settlements.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-4 bg-gray-50 rounded-xl">目前帳目清爽，無人欠款 🎉</p>
-          ) : (
-            <div className="space-y-3">
-              {settlements.map((tx, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-gray-700 bg-white px-3 py-1 rounded-lg shadow-sm">{tx.from}</span>
-                    <ChevronRight className="w-4 h-4 text-emerald-400" />
-                    <span className="font-bold text-emerald-700 bg-white px-3 py-1 rounded-lg shadow-sm">{tx.to}</span>
-                  </div>
-                  <span className="font-bold text-gray-800 tracking-wide">¥ {tx.amount.toLocaleString()}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {expenses.length > 0 && (
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 animate-slide-up">
-          <h3 className="font-bold text-gray-800 mb-4 text-sm">花費明細</h3>
-          <div className="space-y-2">
-            {expenses.map(exp => (
-              <div key={exp.id} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 group">
-                <div>
-                  <h4 className="font-bold text-gray-800 text-sm">{exp.title}</h4>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {exp.payer} 先付 • 分給: {exp.splitters.join(', ')}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-bold text-orange-600">¥ {exp.amount.toLocaleString()}</span>
-                  <button onClick={() => handleDeleteExpense(exp.id)} className="text-gray-300 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  // --- UI 元件 ---
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-teal-200">
-      <div className="max-w-md mx-auto bg-[#F8FAFC] min-h-screen relative shadow-2xl overflow-hidden flex flex-col">
-        
-        {/* 主要內容區 */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
-          {activeTab === 'itinerary' && renderItinerary()}
-          {activeTab === 'weather' && renderWeather()}
-          {activeTab === 'expense' && renderExpenses()}
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-24">
+      {/* 頂部 Header */}
+      <div className="bg-teal-500 text-white p-6 shadow-md rounded-b-3xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 opacity-10">
+          <Sun size={120} className="-mt-4 -mr-4" />
         </div>
-
-        {/* 底部導覽列 */}
-        <div className="absolute bottom-0 w-full bg-white/80 backdrop-blur-md border-t border-gray-100 pb-safe shadow-[0_-10px_30px_rgba(0,0,0,0.05)] rounded-t-3xl z-50">
-          <div className="flex justify-around items-center p-2">
-            <button 
-              onClick={() => setActiveTab('itinerary')}
-              className={`flex flex-col items-center justify-center w-full py-2 px-1 rounded-2xl transition-all duration-300 ${activeTab === 'itinerary' ? 'text-teal-600 font-bold bg-teal-50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
-            >
-              <Map className={`w-6 h-6 mb-1 ${activeTab === 'itinerary' ? 'animate-bounce-slow' : ''}`} />
-              <span className="text-[11px]">行程</span>
-            </button>
-            <button 
-              onClick={() => setActiveTab('weather')}
-              className={`flex flex-col items-center justify-center w-full py-2 px-1 rounded-2xl transition-all duration-300 ${activeTab === 'weather' ? 'text-blue-600 font-bold bg-blue-50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
-            >
-              <CloudSun className={`w-6 h-6 mb-1 ${activeTab === 'weather' ? 'animate-pulse' : ''}`} />
-              <span className="text-[11px]">天氣</span>
-            </button>
-            <button 
-              onClick={() => setActiveTab('expense')}
-              className={`flex flex-col items-center justify-center w-full py-2 px-1 rounded-2xl transition-all duration-300 ${activeTab === 'expense' ? 'text-orange-600 font-bold bg-orange-50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
-            >
-              <Receipt className="w-6 h-6 mb-1" />
-              <span className="text-[11px]">記帳</span>
-            </button>
-          </div>
-        </div>
+        <h1 className="text-2xl font-bold mb-1 relative z-10">日本東北夏日行 🎋</h1>
+        <p className="text-teal-50 text-sm relative z-10">6/18 - 6/24 · 仙台、松島、盛岡、奧入瀨</p>
       </div>
 
-      <style dangerouslySetInnerHTML={{__html: `
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
-        .animate-bounce-slow { animation: bounce 3s infinite; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
-        
-        /* 隱藏水平滾動條但保持可滾動 */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-      `}} />
+      {/* 主導航 */}
+      <div className="flex justify-center gap-4 mt-6 px-4">
+        <button 
+          onClick={() => setMainTab('itinerary')}
+          className={`flex flex-col items-center p-3 rounded-2xl w-24 transition-all ${mainTab === 'itinerary' ? 'bg-white shadow-lg text-teal-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+        >
+          <MapPin size={24} className="mb-1" />
+          <span className="text-xs font-bold">行程表</span>
+        </button>
+        <button 
+          onClick={() => setMainTab('weather')}
+          className={`flex flex-col items-center p-3 rounded-2xl w-24 transition-all ${mainTab === 'weather' ? 'bg-white shadow-lg text-teal-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+        >
+          <Sun size={24} className="mb-1" />
+          <span className="text-xs font-bold">天氣穿搭</span>
+        </button>
+        <button 
+          onClick={() => setMainTab('expenses')}
+          className={`flex flex-col items-center p-3 rounded-2xl w-24 transition-all ${mainTab === 'expenses' ? 'bg-white shadow-lg text-teal-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+        >
+          <Receipt size={24} className="mb-1" />
+          <span className="text-xs font-bold">分帳計算</span>
+        </button>
+      </div>
+
+      <div className="p-4 mt-2">
+        {/* ================= 行程表 View ================= */}
+        {mainTab === 'itinerary' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            
+            {/* 🌟 左右滑動的 Day Tabs (解決超出螢幕的問題) */}
+            <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+              {/* [&::-webkit-scrollbar]:hidden 等語法用來隱藏捲軸，保持美觀 */}
+              <div className="flex overflow-x-auto gap-3 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {itinerary.map((day, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveDay(idx)}
+                    className={`flex-none snap-center px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm ${
+                      activeDay === idx
+                        ? 'bg-teal-600 text-white'
+                        : 'bg-white text-teal-700 border border-teal-100 hover:bg-teal-50'
+                    }`}
+                  >
+                    {day.day}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 當天行程卡片 */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mt-2">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <p className="text-teal-600 font-bold text-sm mb-1">{itinerary[activeDay].day} • {itinerary[activeDay].date}</p>
+                  <h2 className="text-xl font-bold text-slate-800">{itinerary[activeDay].title}</h2>
+                </div>
+                <div className="bg-teal-50 p-2 rounded-full text-teal-600">
+                  <MapPin size={20} />
+                </div>
+              </div>
+              
+              <div className="bg-orange-50 text-orange-800 p-4 rounded-2xl text-sm leading-relaxed mb-6 flex items-start gap-3">
+                <Info size={20} className="shrink-0 mt-0.5 text-orange-500" />
+                <p>{itinerary[activeDay].intro}</p>
+              </div>
+
+              <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+                {itinerary[activeDay].schedule.map((item, idx) => (
+                  <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    
+                    {/* 時間線圓點 */}
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-teal-100 text-teal-600 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm relative z-10">
+                      {item.icon}
+                    </div>
+                    
+                    {/* 內容區塊 */}
+                    <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm ml-4 md:ml-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock size={14} className="text-slate-400" />
+                        <span className="font-bold text-slate-700">{item.time}</span>
+                      </div>
+                      <p className="text-slate-600 text-sm">{item.event}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= 天氣穿搭 View ================= */}
+        {mainTab === 'weather' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {isUsingMockWeather && (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-xl text-sm mb-4 flex gap-2">
+                <Info size={18} className="shrink-0" />
+                <p>因未來預報或 API 限制，目前顯示<strong>6月中旬歷史平均與穿搭建議</strong>。</p>
+              </div>
+            )}
+            
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800">
+              <CloudRain size={20} className="text-teal-500" /> 
+              行程天氣預報
+            </h2>
+            
+            {weatherLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {weatherData.map((day, idx) => (
+                  <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <div className="bg-teal-50 w-12 h-12 rounded-full flex items-center justify-center text-teal-600 shrink-0">
+                        {day.weather[0].main.includes('Rain') ? <CloudRain size={24} /> : 
+                         day.weather[0].main.includes('Cloud') ? <Cloud size={24} /> : <Sun size={24} />}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-700">{itinerary[idx] ? itinerary[idx].date : `Day ${idx + 1}`}</p>
+                        <p className="text-xs text-slate-500">{itinerary[idx] ? itinerary[idx].location : '東北地區'} • {day.weather[0].description}</p>
+                      </div>
+                      <div className="ml-auto sm:ml-4 text-right">
+                        <p className="font-bold text-lg text-slate-800">{day.temp.max}° <span className="text-sm text-slate-400 font-normal">/ {day.temp.min}°</span></p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-slate-50 p-3 rounded-xl w-full sm:w-2/3 text-xs text-slate-600 leading-relaxed border border-slate-100">
+                      <span className="font-bold text-teal-600">👗 穿搭建議：</span><br/>
+                      {getClothingAdvice(day.temp.min, day.temp.max, day.weather[0].main)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= 分帳計算 View ================= */}
+        {mainTab === 'expenses' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800">
+              <Wallet size={20} className="text-teal-500" /> 
+              公費記帳 (5人)
+            </h2>
+
+            {/* 新增花費表單 */}
+            <form onSubmit={handleAddExpense} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col gap-3">
+              <div className="flex gap-3">
+                <input 
+                  type="text" 
+                  placeholder="花費項目 (例: 牛舌晚餐)" 
+                  className="flex-1 bg-slate-50 p-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all border border-slate-200"
+                  value={newExpense.title}
+                  onChange={e => setNewExpense({...newExpense, title: e.target.value})}
+                />
+                <input 
+                  type="number" 
+                  placeholder="日幣(¥)" 
+                  className="w-24 bg-slate-50 p-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all border border-slate-200"
+                  value={newExpense.amount}
+                  onChange={e => setNewExpense({...newExpense, amount: e.target.value})}
+                />
+              </div>
+              <div className="flex gap-3 items-center">
+                <span className="text-sm text-slate-500 shrink-0">代墊人:</span>
+                <select 
+                  className="flex-1 bg-slate-50 p-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200"
+                  value={newExpense.payer}
+                  onChange={e => setNewExpense({...newExpense, payer: e.target.value})}
+                >
+                  {members.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+                <button type="submit" className="bg-teal-600 text-white p-3 rounded-xl flex items-center justify-center shrink-0 hover:bg-teal-700 transition-colors">
+                  <Plus size={20} />
+                </button>
+              </div>
+            </form>
+
+            {/* 結算結果 */}
+            {expenses.length > 0 && (
+              <div className="bg-teal-50 p-5 rounded-2xl mb-6 shadow-sm">
+                <h3 className="font-bold text-teal-800 mb-3 flex items-center gap-2">
+                  <Users size={18} /> 最佳分帳結果
+                </h3>
+                <div className="space-y-2">
+                  {calculateSplit().map((res, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-sm bg-white p-3 rounded-xl">
+                      <span className="font-medium">{res.name}</span>
+                      {res.balance > 0 ? (
+                        <span className="text-teal-600 font-bold">應收回 ¥{Math.round(res.balance).toLocaleString()}</span>
+                      ) : res.balance < 0 ? (
+                        <span className="text-rose-500 font-bold">應支付 ¥{Math.round(Math.abs(res.balance)).toLocaleString()}</span>
+                      ) : (
+                        <span className="text-slate-400">已結清</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 花費明細列表 */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-slate-500 px-2">歷史明細</h3>
+              {expenses.length === 0 ? (
+                <p className="text-slate-400 text-sm text-center py-6">目前還沒有任何花費紀錄喔！</p>
+              ) : (
+                expenses.map(exp => (
+                  <div key={exp.id} className="bg-white p-4 rounded-xl flex justify-between items-center shadow-sm border border-slate-100">
+                    <div>
+                      <p className="font-bold text-slate-700 text-sm">{exp.title}</p>
+                      <p className="text-xs text-slate-400 mt-1">{exp.payer} 代墊</p>
+                    </div>
+                    <p className="font-bold text-teal-600">¥{exp.amount.toLocaleString()}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
