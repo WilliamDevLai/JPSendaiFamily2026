@@ -63,18 +63,19 @@ const itinerary = [
   {
     day: "Day 4",
     date: "6/21 (日)",
-    title: "奧入瀨溪流最強大巴定點 0 勞動",
-    location: "奧入瀨 (續住盛岡)",
-    intro: "免換飯店！將坐車時間壓縮到最短，輕鬆享受奧入瀨溪流最精華的散步路段。",
+    title: "奧入瀨綠意自駕 ➡️ 十和田湖慢活全紀錄",
+    location: "八戶、奧入瀨、十和田湖",
+    intro: "全天開著 ORIX 頂規 7 人座大保姆車，全程走免費國道，並利用黃金 55 號班次環遊中湖。",
     banner: "https://github.com/user-attachments/assets/e23aa815-5037-43e1-90bd-6d1273448023",
     schedule: [
-      { time: "08:50 - 09:30", event: "兩手空空不用退房，從盛岡搭新幹線【隼號】短短 28 分鐘直達八戶車站", icon: <Train size={18} />, mapQuery: "八戸駅" },
-      { time: "10:00 - 11:44", event: "八戶站西口搭乘提早一個月預約好座位的【JR巴士・おいらせ 21號】前往奧入瀨", icon: <Train size={18} />, mapQuery: "八戸駅西口" },
-      { time: "11:44 - 13:02", event: "【石之戶野餐】平坦溪畔木棧道散步 15 分鐘拍美照，聽溪水聲吃八戶便當野餐", icon: <MapPin size={18} />, mapQuery: "奥入瀬渓流 石ヶ戸" },
-      { time: "13:02 - 14:07", event: "【公車大跳躍 & 銚子大瀑布】搭區間大巴輕鬆跳過上坡，下車定點賞瀑拍家族合照，吸飽負離子", icon: <MapPin size={18} />, mapQuery: "銚子大滝" },
-      { time: "14:22 - 16:00", event: "【十和田湖畔】搭區間大巴至子之口。湖畔餐廳吹冷氣喝拿鐵吃蘋果派，徹底放鬆", icon: <Heart size={18} />, mapQuery: "子ノ口" },
-      { time: "16:00 - 18:10", event: "【回程】子之口搭乘末班大巴直達八戶站，轉搭新幹線特快回盛岡。晚餐享用東北在地地雞料理", icon: <Train size={18} /> },
-      { time: "晚上", event: "續住【GRIDS PREMIUM 盛岡】，繼續享受頂樓星空露天風呂", icon: <Home size={18} />, mapQuery: "GRIDS PREMIUM 盛岡" }
+      { time: "08:48 - 09:19", event: "搭乘【新幹線 Hayabusa 4 號】（盛岡 ➡️ 八戶）。提早劃位，車上安穩休息保留戰力", icon: <Train size={18} />, mapQuery: "八戸駅" },
+      { time: "09:20 - 09:50", event: "【ORIX 八戶站前店】西口取車。出示預約單刷卡結清加租 ETC，確認導航切換中文與一般道路優先", icon: <Wallet size={18} />, mapQuery: "オリックスレンタカー 八戸駅西口店" },
+      { time: "10:45 - 11:15", event: "【十和田市區大超市】MaxValu 採購補給。掃貨炸豬排便當、青森當季大草莓，100% 避開山上排隊與生食風險", icon: <Utensils size={18} />, mapQuery: "マックスバリュ 十和田" },
+      { time: "11:45 - 14:00", event: "【奧入瀨溪流精華慢遊】自駕隨踩隨停。累了立刻回車內吹空調大躺平，中午停專用車位在車內奢華野餐", icon: <MapPin size={18} />, mapQuery: "奥入瀬渓流" },
+      { time: "14:40 - 15:30", event: "【十和田湖遊覽船】搭乘 55號班次 B路線。坐在冷氣船艙沙發座，穿梭半島看千仞絕壁，免淋雨吹風", icon: <Ticket size={18} />, mapQuery: "十和田湖遊覧船" },
+      { time: "15:30 - 16:30", event: "【休屋國寶散步圈】下船平地散步拍「少女雕像」，往內參拜隱匿在參天巨木杉林中的古老「十和田神社」", icon: <Heart size={18} />, mapQuery: "十和田神社" },
+      { time: "18:30 - 19:00", event: "【加滿還車】八戶站前 ENEOS 喊口訣加滿油，開回 ORIX 西口還車並結算 0 元 ETC 費用", icon: <MapPin size={18} />, mapQuery: "ENEOS 八戸駅西口" },
+      { time: "19:15 - 晚上", event: "【八戶站前覓食與回航】八戶站前晚餐。依全家當下體力隨性劃位新幹線回程，徹底告別趕車焦慮", icon: <Train size={18} /> }
     ]
   },
   {
